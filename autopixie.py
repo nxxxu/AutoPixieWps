@@ -7,7 +7,6 @@ import signal
 import re
 import sys
 
-
 def wash(f):
 
 	global bssid
@@ -37,8 +36,8 @@ def wash(f):
 	for x in range(0,len(bssid)-1):
 		if x == 0:print "Press CTRL+C to stop scan and choose accesspoint"
 		if x > 8:spacer="-"
-		if lock[x] == "Ye": print "\033[1;31;40m", x+1,spacer, "BSSID:",bssid[x], " Channel:", channel[x], "Pwr", pwr[x], "ESSID:", essid[x]
-		if lock[x] == "No": print "\033[1;32;40m", x+1,spacer, "BSSID:",bssid[x], " Channel:", channel[x], "Pwr", pwr[x], "ESSID:", essid[x]
+		if lock[x] == "Ye": print "\033[1;31;40m", x+1,spacer, "-b:",bssid[x], " -c:", channel[x], "Pwr", pwr[x], "-e:", essid[x]
+		if lock[x] == "No": print "\033[1;32;40m", x+1,spacer, "-b:",bssid[x], " -c:", channel[x], "Pwr", pwr[x], "-e:", essid[x]
 
 
 
@@ -63,7 +62,10 @@ if manorauto == "2":
 	except KeyboardInterrupt:
 		print
 	choose = raw_input("accesspoint:")
-	if choose == "0":sys.exit("Exit")
+	if choose == "0":
+		os.remove("fWashOut.txt")
+		os.remove("fWashError.txt")
+		sys.exit("Exit")
 	choose=int(choose)
 	bssid=bssid[choose-1]
 	channel=channel[choose-1]
