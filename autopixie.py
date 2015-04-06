@@ -7,6 +7,7 @@ import signal
 import re
 import sys
 
+
 def wash(f):
 
 	global bssid
@@ -29,15 +30,15 @@ def wash(f):
 			if line[:5] != "-----":
 				essid.append (line[84:line.find("\n")])
 				bssid.append (line[:17])
-				channel.append (line[24:26])
+				channel.append (line[22:26])
 				pwr.append (line[37:41])
-				lock.append (line[66:68])
+				lock.append (line[64:69])
 	os.system('clear')
 	for x in range(0,len(bssid)-1):
 		if x == 0:print "Press CTRL+C to stop scan and choose accesspoint"
 		if x > 8:spacer="-"
-		if lock[x] == "Ye": print "\033[1;31;40m", x+1,spacer, "-b:",bssid[x], " -c:", channel[x], "Pwr", pwr[x], "-e:", essid[x]
-		if lock[x] == "No": print "\033[1;32;40m", x+1,spacer, "-b:",bssid[x], " -c:", channel[x], "Pwr", pwr[x], "-e:", essid[x]
+		if "Y" in lock[x]: print "\033[1;31;40m", x+1,spacer, "-b:",bssid[x], " -c:", channel[x], "Pwr", pwr[x], "-e:", essid[x]
+		if "N" in lock[x]: print "\033[1;32;40m", x+1,spacer, "-b:",bssid[x], " -c:", channel[x], "Pwr", pwr[x], "-e:", essid[x]
 
 
 
@@ -60,7 +61,7 @@ if manorauto == "2":
 			wash(f)
 			time.sleep(0.2)
 	except KeyboardInterrupt:
-		print
+		print "\033[1;32;40m"
 	choose = raw_input("accesspoint:")
 	if choose == "0":
 		os.remove("fWashOut.txt")
