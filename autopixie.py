@@ -63,6 +63,7 @@ if manorauto == "2":
 	except KeyboardInterrupt:
 		print
 	choose = raw_input("accesspoint:")
+	if choose == "0":sys.exit("Exit")
 	choose=int(choose)
 	bssid=bssid[choose-1]
 	channel=channel[choose-1]
