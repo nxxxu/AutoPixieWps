@@ -29,7 +29,7 @@ def wash(f):
 			if line[:5] != "-----":
 				essid.append (line[84:line.find("\n")])
 				bssid.append (line[:17])
-				channel.append (line[24:26])
+				channel.append (line[22:26])
 				pwr.append (line[37:41])
 				lock.append (line[66:68])
 	os.system('clear')
