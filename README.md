@@ -19,7 +19,7 @@ Wash scan > target router from scan list
 
 Save resuslts to logfile
 
-option to ignore router from wash scan if it has been cracked, or if PixieWps failer to crack the hash
+option to ignore router from wash scan if it has been cracked, or if PixieWps failed to crack the hash
 
 
 # DEPENDENCIES
