@@ -12,10 +12,15 @@ Any illegal use of this program is strictly forbidden!.
 # FEATURES
 
 Kill reaver as soon as e-hash2 is gained.
+
 Manual input target router without scan
+
 Wash scan > target router from scan list
+
 Save resuslts to logfile
+
 option to ignore router from wash scan if it has been cracked, or if PixieWps failer to crack the hash
+
 
 # DEPENDENCIES
 
