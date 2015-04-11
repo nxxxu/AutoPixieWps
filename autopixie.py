@@ -1,5 +1,5 @@
 #!/usr/bin/python
- # autopixiewps
+ # autopixiewps 
  #
  # Special thanks to: wiire and anyone working on the pixiedust attack
  #
