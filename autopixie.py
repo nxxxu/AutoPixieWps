@@ -344,7 +344,7 @@ def convPin():
 		select = raw_input("Would you like to exclude this router from future wash scans? <N/y>:")
 		if select.lower()=="y":
 			bsside="%s%s" % (bssid,"\n")
-			with open("APW-Exclude", "a") as myfile:myfile.write("%s\n") % (bsside)
+			with open("APW-Exclude", "a") as myfile:myfile.write(bsside)
 		if logFile!="":
 			with open(logFile, "a") as savelog:
 				saveinfo="essid:%s bssid:%s WPSpin:%s WPAkey:%s\n" % (essid, bssid, WPSpin, WPAkey)
@@ -407,8 +407,8 @@ def pixie():
 		print
 		select = raw_input("Would you like to exclude this router from future wash scans? <N/y>:")
 		if select.lower()=="y":
-			bsside="%s%s" % (bsside,"\n")
-			with open("APW-Exclude", "a") as myfile:myfile.write("%s\n") % (bssid)
+			bsside="%s%s" % (bssid,"\n")
+			with open("APW-Exclude", "a") as myfile:myfile.write(bsside)
 	else:
 		WPSpin=WPSpin[WPSpin.find("WPS pin")+9:WPSpin.find("\n")]
 		convPin()
