@@ -73,7 +73,7 @@ def menu():
 
 
 
-		if hasLog == "Yes": print "           settings loaded.", interface
+		if hasLog == "Yes": print "           settings loaded."
 		print
 		print "Menu:"
 		print "1: Manual input"
