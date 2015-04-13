@@ -40,3 +40,9 @@ to run:
 ```
 
 on any promt, input "0" as aswer to go back to menu (exept under settings when creating new rules)
+
+13.4.2015:
+changed autopixie to not run reaver with -S and run pixiewps with  -e -r -s -z -a -n
+
+to be added:
+multi attack, attack multiple accesspoints from wash scan, (if multiple routers are in same channel, it will try hashing them all at once, and then move on to the next channel)
