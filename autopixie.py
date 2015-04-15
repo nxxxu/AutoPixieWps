@@ -294,24 +294,24 @@ def reaver():
 		while True:
 			line = f.readline()
 			while line:
-				if "PKE:" in line and PKEb == "":
+				if "PKE:" in line:
 					PKE=line[line.find("PKE:")+5:line.find("\n")]
-					PKEb=len(re.sub('[^A-Za-z0-9]+', '', PKE))/2,
+					PKEb=len(re.sub('[^A-Fa-f0-9]+', '', PKE))/2,
 				if "AuthKey:" in line and AuthKeyb == "":
 					AuthKey=line[line.find("AuthKey:")+9:line.find("\n")]
-					AuthKeyb=len(re.sub('[^A-Za-z0-9]+', '', AuthKey))/2,
+					AuthKeyb=len(re.sub('[^A-Fa-f0-9]+', '', AuthKey))/2,
 				if "E-Hash1" in line and EHash1b == "":
 					EHash1=line[line.find("E-Hash1:")+9:line.find("\n")]
-					EHash1b=len(re.sub('[^A-Za-z0-9]+', '', EHash1))/2,
-				if "E-Hash2" in line and EHash2b == "":
+					EHash1b=len(re.sub('[^A-Fa-f0-9]+', '', EHash1))/2,
+				if "E-Hash2" in line:
 					EHash2=line[line.find("E-Hash2:")+9:line.find("\n")]
-					EHash2b=len(re.sub('[^A-Za-z0-9]+', '', EHash2))/2,
-				if "PKR:" in line and PKRb == "":
+					EHash2b=len(re.sub('[^A-Fa-f0-9]+', '', EHash2))/2,
+				if "PKR:" in line
 					PKR=line[line.find("PKR:")+5:line.find("\n")]
-					PKRb=len(re.sub('[^A-Za-z0-9]+', '', PKR))/2,
-				if "E-Nonce:" in line and Enonceb == "":
+					PKRb=len(re.sub('[^A-Fa-f0-9]+', '', PKR))/2,
+				if "E-Nonce:" in line:
 					Enonce=line[line.find("E-Nonce:")+9:line.find("\n")]
-					Enonceb=len(re.sub('[^A-Za-z0-9]+', '', Enonce))/2,
+					Enonceb=len(re.sub('[^A-Fa-f0-9]+', '', Enonce))/2,
 				if PKE!="" and AuthKey!="" and EHash1!="" and EHash2!="":hashing="done"
 				Cline.append (line)
 				line = f.readline()
