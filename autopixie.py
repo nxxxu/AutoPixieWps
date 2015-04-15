@@ -306,7 +306,7 @@ def reaver():
 				if "E-Hash2" in line:
 					EHash2=line[line.find("E-Hash2:")+9:line.find("\n")]
 					EHash2b=len(re.sub('[^A-Fa-f0-9]+', '', EHash2))/2,
-				if "PKR:" in line
+				if "PKR:" in line:
 					PKR=line[line.find("PKR:")+5:line.find("\n")]
 					PKRb=len(re.sub('[^A-Fa-f0-9]+', '', PKR))/2,
 				if "E-Nonce:" in line:
